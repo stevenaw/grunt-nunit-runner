@@ -39,12 +39,12 @@ exports.buildCommand = function(assemblies, options) {
 
     var nunit = '';
 
-    if(!opts.version || opts.version < 3) {
+    if(!options.version || options.version < 3) {
         nunit = options.platform === 'x86' ? 'nunit-console-x86.exe' : 'nunit-console.exe';
     } else {
         nunit = 'nunit3-console.exe';
 
-        if (options.platform) args.push('/x86');
+        if (options.platform === 'x86') args.push('/x86');
     }
 
     if (options.path) nunit = path.join(options.path, nunit);
