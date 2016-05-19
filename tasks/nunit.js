@@ -22,10 +22,10 @@ exports.findTestAssemblies = function(files, options) {
         forEach(function(project) {
             var outputs = project.output.filter(function(output) { return fs.existsSync(output); });
             if (outputs.length === 0) throw new Error('No assemblies exist for project: ' + project.path);
-            
+
             if (options && options.config) {
-                outputs = outputs.filter(function(output) { 
-                    return output.toLowerCase().indexOf(options.config.toLowerCase()) > -1; 
+                outputs = outputs.filter(function(output) {
+                    return output.toLowerCase().indexOf(options.config.toLowerCase()) > -1;
                 });
             }
 
@@ -37,7 +37,7 @@ exports.findTestAssemblies = function(files, options) {
 
 exports.buildCommand = function(assemblies, options) {
 
-    var nunit = options.platform === 'x86' ? 'nunit-console-x86.exe' : 'nunit-console.exe';
+    var nunit = options.exe || (options.platform === 'x86' ? 'nunit-console-x86.exe' : 'nunit-console.exe');
     if (options.path) nunit = path.join(options.path, nunit);
 
     nunit = nunit.replace(/\\/g, path.sep);
@@ -84,18 +84,18 @@ exports.createTeamcityLog = function(results) {
     var ancestors = [];
     var message, stackTrace;
 
-    var getSuiteName = function(node) { return node.attributes.type === 'Assembly' ? 
+    var getSuiteName = function(node) { return node.attributes.type === 'Assembly' ?
         path.basename(node.attributes.name.replace(/\\/g, path.sep)) : node.attributes.name; };
 
     parser.onopentag = function (node) {
         ancestors.push(node);
         switch (node.name) {
             case 'test-suite': log.push('##teamcity[testSuiteStarted name=\'' + getSuiteName(node) + '\']'); break;
-            case 'test-case': 
-                if (node.attributes.executed === 'True') log.push('##teamcity[testStarted name=\'' + node.attributes.name + '\']'); 
+            case 'test-case':
+                if (node.attributes.executed === 'True') log.push('##teamcity[testStarted name=\'' + node.attributes.name + '\']');
                 message = '';
                 stackTrace = '';
-                break; 
+                break;
         }
     };
 
@@ -121,14 +121,14 @@ exports.createTeamcityLog = function(results) {
         node = ancestors.pop();
         switch (node.name) {
             case 'test-suite': log.push('##teamcity[testSuiteFinished name=\'' + getSuiteName(node) + '\']'); break;
-            case 'test-case': 
+            case 'test-case':
                 if (node.attributes.result === 'Ignored')
-                    log.push('##teamcity[testIgnored name=\'' + node.attributes.name + '\'' + 
-                        (message ? ' message=\'' + message + '\'' : '') + ']'); 
+                    log.push('##teamcity[testIgnored name=\'' + node.attributes.name + '\'' +
+                        (message ? ' message=\'' + message + '\'' : '') + ']');
                 else if (node.attributes.executed === 'True') {
                     if (node.attributes.success === 'False') {
                         log.push('##teamcity[testFailed name=\'' + node.attributes.name + '\'' +
-                            (message ? ' message=\'' + message + '\'' : '') + 
+                            (message ? ' message=\'' + message + '\'' : '') +
                             (stackTrace ? ' details=\'' + stackTrace + '\'' : '') + ']');
                     }
                     var duration = node.attributes.time ? ' duration=\'' + parseInt(
