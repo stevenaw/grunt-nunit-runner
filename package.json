@@ -32,7 +32,7 @@
   "dependencies": {
     "underscore": "~1.5.2",
     "temp": "~0.6.0",
-    "sax": "~0.5.8"
+    "sax": "~1.2.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
