@@ -19,13 +19,6 @@ exports.findTestAssemblies = function(files, options) {
     });
 
     projects.
-        forEach(function(project) {
-            project.references.forEach(function(reference) {
-                console.log(project);
-            });
-        });
-
-    projects.
         filter(function(project) { return _.includes(project.references, 'nunit.framework'); }).
         forEach(function(project) {
             var outputs = project.output.filter(function(output) { return fs.existsSync(output); });
